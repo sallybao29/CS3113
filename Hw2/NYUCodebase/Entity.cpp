@@ -12,13 +12,14 @@
 Entity::Entity(float x, float y, float width, float height, float dx, float dy)
 : x(x), y(y), width(width), height(height), velocityX(dx), velocityY(dy) {}
 
-void Entity::Draw(ShaderProgram& program, Matrix& modelMatrix) {
+void Entity::Draw(ShaderProgram& program, Matrix& modelMatrix) const {
     modelMatrix.Identity();
     modelMatrix.Translate(x, y, 0.0f);
     modelMatrix.Rotate(rotation);
     modelMatrix.Scale(this->width, this->height, 1.0f);
     
     program.SetModelMatrix(modelMatrix);
+    program.SetColor(color[RED], color[GREEN], color[BLUE], color[ALPHA]);
     
     // Set vertices
     float vertices[] = {-0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5};
@@ -38,4 +39,11 @@ void Entity::Draw(ShaderProgram& program, Matrix& modelMatrix) {
     
     if (textureID)
         glDisableVertexAttribArray(program.texCoordAttribute);
+}
+
+void Entity::SetColor(float r, float g, float b, float a) {
+    color[RED] = r;
+    color[GREEN] = g;
+    color[BLUE] = b;
+    color[ALPHA] = a;
 }

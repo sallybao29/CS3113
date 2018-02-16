@@ -1,3 +1,12 @@
+/*
+    A simple game of Pong.
+    Left player (one) is controlled by W and S keys.
+    Right player (two) is controlled by UP and DOWN keys.
+    Press SPACEBAR to start the round.
+    The ball will go to the right on the first round.
+    After that, it will go in the direction of last round's winner.
+ */
+
 #ifdef _WINDOWS
 #include <GL/glew.h>
 #endif
@@ -14,6 +23,9 @@
 #else
 #define RESOURCE_FOLDER "NYUCodebase.app/Contents/Resources/"
 #endif
+
+#define PLAYER_ONE 1
+#define PLAYER_TWO 2
 
 /*------------------------------------- Globals -----------------------------------------*/
 SDL_Window* displayWindow;
@@ -32,6 +44,7 @@ const float aspectRatio = (float)width / (float)height,
 // Game logic
 bool done = false;
 bool start = false;
+int winner = 0;
 float lastFrameTicks = 0.0f;
 float elapsed = 0.0f;
 const Uint8 *keys = SDL_GetKeyboardState(nullptr);
@@ -93,9 +106,18 @@ void ProcessEvents() {
             done = true;
         } else if (event.type == SDL_KEYDOWN) {
             if (event.key.keysym.scancode == SDL_SCANCODE_SPACE && start == false) {
-                pong.velocityX = 1.5f;
-                pong.velocityY = 1.5f;
+                pong.velocityY = 2.0f;
+                pong.velocityX = 2.0f;
                 start = true;
+                if (winner == PLAYER_ONE) {
+                    playerOne.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+                    pong.velocityX = -2.0f;
+                }
+                
+                else if (winner == PLAYER_TWO) {
+                    playerTwo.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+                }
+                winner = 0;
             }
         }
     }
@@ -106,6 +128,7 @@ void Update() {
     elapsed = ticks - lastFrameTicks;
     lastFrameTicks = ticks;
     
+    // Player actions
     if (keys[SDL_SCANCODE_UP] && playerTwo.y + playerTwo.height / 2 < projectHeight) {
         playerTwo.y += elapsed * playerTwo.velocityY;
     } else if (keys[SDL_SCANCODE_DOWN] && playerTwo.y - playerTwo.height / 2 > -projectHeight) {
@@ -117,11 +140,28 @@ void Update() {
         playerOne.y -= elapsed * playerOne.velocityY;
     }
     
+    // Check if either player has won
+    if (pong.x - pong.width / 2 <= -projectWidth)
+        winner = PLAYER_TWO;
+    else if (pong.x + pong.width / 2 >= projectWidth)
+        winner = PLAYER_ONE;
+    
+    if (winner){
+        pong.velocityY = pong.velocityX = pong.x = pong.y = 0.0f;
+        start = false;
+        if (winner == PLAYER_ONE)
+            playerOne.SetColor(0.0f, 1.0f, 0.0f, 1.0f);
+        else if (winner == PLAYER_TWO)
+            playerTwo.SetColor(0.0f, 1.0f, 0.0f, 1.0f);
+    }
     // Check collision with ceiling and floor
-    if (pong.y + pong.height / 2 >= projectHeight ||
+    else if (pong.y + pong.height / 2 >= projectHeight ||
         pong.y - pong.height / 2 <= -projectHeight) {
         pong.velocityY *= -1;
-    } else if (Collides(pong, playerOne) || Collides(pong, playerTwo)) {
+    }
+    // Check collision with paddles
+    else if ((Collides(pong, playerOne) && pong.velocityX < 0) ||
+               (Collides(pong, playerTwo) && pong.velocityX > 0)) {
         pong.velocityX *= -1;
     }
     pong.x += elapsed * pong.velocityX;
@@ -136,10 +176,6 @@ void Render() {
     SDL_GL_SwapWindow(displayWindow);
 }
 
-void Cleanup() {
-
-}
-
 int main(int argc, char *argv[])
 {
     Setup();
@@ -148,7 +184,6 @@ int main(int argc, char *argv[])
         Update();
         Render();
     }
-    Cleanup();
     
     SDL_Quit();
     return 0;
