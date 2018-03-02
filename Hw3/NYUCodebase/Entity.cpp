@@ -3,13 +3,15 @@
 #include "SheetSprite.h"
 #include "Entity.h"
 
+Vector3::Vector3() {}
+
 Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
-Entity::Entity(float x, float y, float width, float height, float dx, float dy)
-: position(x, y, 0.0f), size(width, height, 0.0f), velocity(dx, dy, 0.0f) {}
+Entity::Entity(float x, float y, float width, float height)
+: position(x, y, 0.0f), size(width, height, 0.0f) {}
 
-Entity::Entity(float x, float y, SheetSprite *sprite, float dx, float dy)
-: position(x, y, 0.0f), size(0.0f, 0.0f, 0.0f), velocity(dx, dy, 0.0f), sprite(sprite) {
+Entity::Entity(float x, float y, SheetSprite *sprite)
+: position(x, y, 0.0f), size(0.0f, 0.0f, 0.0f), sprite(sprite) {
     
     float aspect = sprite->width / sprite->height;
     size.x = aspect * sprite->size;

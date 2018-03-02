@@ -12,25 +12,26 @@ class SheetSprite;
 
 class Vector3 {
 public:
+    Vector3();
     Vector3(float x, float y, float z);
-    float x;
-    float y;
-    float z;
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
 };
 
 enum EntityType {
-    ENTITY_PLAYER,
-    ENTITY_BULLET,
-    ENTITY_ENEMY_BLACK,
-    ENTITY_ENEMY_BLUE,
-    ENTITY_ENEMY_GREEN,
-    ENTITY_ENEMY_RED
+    ENTITY_PLAYER = 0,
+    ENTITY_ENEMY_BLACK = 1,
+    ENTITY_ENEMY_BLUE = 2,
+    ENTITY_ENEMY_GREEN = 3,
+    ENTITY_ENEMY_RED = 4,
+    ENTITY_BULLET = 5
 };
 
 class Entity {
 public:
-    Entity(float x, float y, float width, float height, float dx = 0.0f, float dy = 0.0f);
-    Entity(float x, float y, SheetSprite *sprite, float dx = 0.0f, float dy = 0.0f);
+    Entity(float x, float y, float width, float height);
+    Entity(float x, float y, SheetSprite *sprite);
     
     void Update(float elapsed);
     void Render(ShaderProgram& program, Matrix& modelMatrix) const;
@@ -46,6 +47,7 @@ public:
     Vector3 size;
     
     SheetSprite *sprite = nullptr;
+    EntityType type;
     
     float color[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 };
