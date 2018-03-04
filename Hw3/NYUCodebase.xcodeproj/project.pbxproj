@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		484587FA204B1DA0005B44C3 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484587F8204B1DA0005B44C3 /* Timer.cpp */; };
 		48CF2FE3204745D0004020A7 /* font1.png in Resources */ = {isa = PBXBuildFile; fileRef = 48CF2FE2204745D0004020A7 /* font1.png */; };
 		48D69BC8203534E400EC493C /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D69BC7203534E400EC493C /* Entity.cpp */; };
 		48F99DA720484C0A0024D0D8 /* SheetSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F99DA520484C0A0024D0D8 /* SheetSprite.cpp */; };
 		48F99DAC2048B35E0024D0D8 /* GameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F99DAA2048B35E0024D0D8 /* GameState.cpp */; };
-		48F99DAF2048D18B0024D0D8 /* TitleScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F99DAD2048D18B0024D0D8 /* TitleScreen.cpp */; };
 		48F99DB12049114F0024D0D8 /* sheet.png in Resources */ = {isa = PBXBuildFile; fileRef = 48F99DB02049114F0024D0D8 /* sheet.png */; };
 		6D5A86AE19AE5C710066C1FD /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D5A86AD19AE5C710066C1FD /* Cocoa.framework */; };
 		6D5A86B819AE5C710066C1FD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6D5A86B619AE5C710066C1FD /* InfoPlist.strings */; };
@@ -30,6 +30,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		484587F8204B1DA0005B44C3 /* Timer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
+		484587F9204B1DA0005B44C3 /* Timer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Timer.hpp; sourceTree = "<group>"; };
 		48CF2FE2204745D0004020A7 /* font1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = font1.png; sourceTree = "<group>"; };
 		48D69BC62035341600EC493C /* Entity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Entity.h; sourceTree = "<group>"; };
 		48D69BC7203534E400EC493C /* Entity.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Entity.cpp; sourceTree = "<group>"; };
@@ -38,8 +40,6 @@
 		48F99DA820484CA70024D0D8 /* SheetSprite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SheetSprite.h; sourceTree = "<group>"; };
 		48F99DA92048B0E80024D0D8 /* GameState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameState.h; sourceTree = "<group>"; };
 		48F99DAA2048B35E0024D0D8 /* GameState.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GameState.cpp; sourceTree = "<group>"; };
-		48F99DAD2048D18B0024D0D8 /* TitleScreen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TitleScreen.cpp; sourceTree = "<group>"; };
-		48F99DAE2048D18B0024D0D8 /* TitleScreen.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TitleScreen.hpp; sourceTree = "<group>"; };
 		48F99DB02049114F0024D0D8 /* sheet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sheet.png; sourceTree = "<group>"; };
 		6D5A86AA19AE5C710066C1FD /* NYUCodebase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NYUCodebase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D5A86AD19AE5C710066C1FD /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -177,10 +177,10 @@
 				6DEF23BF1B96CC2600BCE792 /* ShaderProgram.h */,
 				48F99DA520484C0A0024D0D8 /* SheetSprite.cpp */,
 				48F99DA820484CA70024D0D8 /* SheetSprite.h */,
-				48F99DAD2048D18B0024D0D8 /* TitleScreen.cpp */,
-				48F99DAE2048D18B0024D0D8 /* TitleScreen.hpp */,
 				6DC707691BA7273500225B7D /* vertex_textured.glsl */,
 				6DEF23C01B96CC2600BCE792 /* vertex.glsl */,
+				484587F8204B1DA0005B44C3 /* Timer.cpp */,
+				484587F9204B1DA0005B44C3 /* Timer.hpp */,
 			);
 			name = Code;
 			sourceTree = "<group>";
@@ -259,7 +259,7 @@
 			files = (
 				48D69BC8203534E400EC493C /* Entity.cpp in Sources */,
 				48F99DAC2048B35E0024D0D8 /* GameState.cpp in Sources */,
-				48F99DAF2048D18B0024D0D8 /* TitleScreen.cpp in Sources */,
+				484587FA204B1DA0005B44C3 /* Timer.cpp in Sources */,
 				48F99DA720484C0A0024D0D8 /* SheetSprite.cpp in Sources */,
 				6DEF23C31B96CC2600BCE792 /* ShaderProgram.cpp in Sources */,
 				6DEF23C21B96CC2600BCE792 /* Matrix.cpp in Sources */,

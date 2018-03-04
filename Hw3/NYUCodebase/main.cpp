@@ -16,11 +16,8 @@
 
 #include "main.h"
 #include "ShaderProgram.h"
+#include "SheetSprite.h"
 #include "GameState.h"
-#include "TitleScreen.hpp"
-
-#define FIXED_TIMESTEP 0.0166666f
-#define MAX_TIMESTEPS 6
 
 const GLuint width = 640 * 2,
             height = 360 * 2;
@@ -38,11 +35,10 @@ const Uint8 *keys = SDL_GetKeyboardState(nullptr);
 
 GLuint font;
 GLuint spriteSheet;
+std::vector<SheetSprite> sprites;
 
 GameMode mode = STATE_TITLE_SCREEN;
-TitleScreen titleScreen;
 GameState state;
-
 
 /*--------------------------------------- Functions -------------------------------------------*/
 GLuint LoadTexture(const char *filePath) {
@@ -62,7 +58,14 @@ GLuint LoadTexture(const char *filePath) {
     return retTexture;
 }
 
-void DrawText(ShaderProgram& program, int fontTexture, std::string text, float size, float spacing) {
+void DrawText(ShaderProgram& program, int fontTexture, std::string text, float size, float spacing, float x, float y) {
+    // Center the text at (x, y)
+    float centerX = x - (text.size() * size + (text.size() - 1) * spacing) / (float)2;
+    float centerY = y + size / 2;
+    modelMatrix.Identity();
+    modelMatrix.Translate(centerX, centerY, 0.0f);
+    program.SetModelMatrix(modelMatrix);
+    
     float texture_size = 1.0/16.0f;
     std::vector<float> vertexData;
     std::vector<float> texCoordData;
@@ -125,18 +128,69 @@ void Setup() {
     font = LoadTexture(RESOURCE_FOLDER"font1.png");
     spriteSheet = LoadTexture(RESOURCE_FOLDER"sheet.png");
     
+    CreateSprites();
     state.Initialize();
+}
+
+void CreateSprites() {
+    // Initialize sprites
+    float resolution = 1024.0f;
+    float width = 93.0f;
+    float height = 84.0f;
+    float size = 0.2f;
+    
+    float spriteValues[] = {
+        325.0f, 739.0f, 98.0f, 75.0f, size,  // player sprite
+        423.0f, 728.0f, width, height, size, // enemy sprites (black, blue, green, red)
+        425.0f, 468.0f, width, height, size,
+        425.0f, 552.0f, width, height, size,
+        425.0f, 384.0f, width, height, size,
+        835.0f, 695.0f, 13.0f, 57.0f, 0.1f,  // bullet sprites (player, enemy)
+        843.0f, 846.0f, 13.0f, 57.0f, 0.1f
+    };
+    
+    for (int i = 0; i < 35; i += 5) {
+        sprites.emplace_back(spriteSheet,
+                             spriteValues[i] / resolution, spriteValues[i+1] / resolution,
+                             spriteValues[i+2] / resolution, spriteValues[i+3] / resolution,
+                             spriteValues[i+4]);
+    }
+}
+
+void ProcessTitleScreenInput() {
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
+            done = true;
+        }
+        else if (event.type == SDL_KEYDOWN) {
+            if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
+                if (mode == STATE_GAME_OVER) {
+                    state.Restart();
+                }
+                mode = STATE_GAME_LEVEL;
+            }
+        }
+    }
+}
+
+void RenderTitleScreen() {
+    DrawText(program, font, "SPACE INVADERS", 0.30f, 0.0f, 0.0f, 0.0f);
+    DrawText(program, font, "PRESS SPACE TO START", 0.15f, 0.0f, 0.0f, -0.5f);
+}
+
+void RenderGameOver(){
+    DrawText(program, font, "GAME OVER!", 0.30f, 0.0f, 0.0f, 0.0f);
+    DrawText(program, font, "PRESS SPACE TO TRY AGAIN", 0.15f, 0.0f, 0.0f, -0.5f);
 }
 
 void ProcessEvents() {
     switch (mode) {
         case STATE_TITLE_SCREEN:
-            titleScreen.ProcessInput();
+        case STATE_GAME_OVER:
+            ProcessTitleScreenInput();
             break;
         case STATE_GAME_LEVEL:
             state.ProcessInput();
-            break;
-        case STATE_GAME_OVER:
             break;
         default:
             break;
@@ -146,7 +200,6 @@ void ProcessEvents() {
 void Update(float elapsed) {
     switch (mode) {
         case STATE_TITLE_SCREEN:
-            titleScreen.Update(elapsed);
             break;
         case STATE_GAME_LEVEL:
             state.Update(elapsed);
@@ -162,12 +215,13 @@ void Render() {
     glClear(GL_COLOR_BUFFER_BIT);
     switch (mode) {
         case STATE_TITLE_SCREEN:
-            titleScreen.Render();
+            RenderTitleScreen();
             break;
         case STATE_GAME_LEVEL:
             state.Render();
             break;
         case STATE_GAME_OVER:
+            RenderGameOver();
             break;
         default:
             break;
@@ -182,6 +236,7 @@ float accumulator = 0.0f;
 
 int main(int argc, char *argv[])
 {
+    srand(time(NULL));
     Setup();
     while (!done) {
          ProcessEvents();

@@ -30,8 +30,8 @@ enum EntityType {
 
 class Entity {
 public:
-    Entity(float x, float y, float width, float height);
-    Entity(float x, float y, SheetSprite *sprite);
+    Entity(float x, float y, float width, float height, EntityType type);
+    Entity(float x, float y, SheetSprite *sprite, EntityType type);
     
     void Update(float elapsed);
     void Render(ShaderProgram& program, Matrix& modelMatrix) const;
@@ -40,7 +40,7 @@ public:
     void SetSprite(SheetSprite* newSprite);
     
     float rotation = 0.0f;
-    int health = 1;
+    int health = 0;
     
     Vector3 position;
     Vector3 velocity;

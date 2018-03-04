@@ -7,11 +7,11 @@ Vector3::Vector3() {}
 
 Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
-Entity::Entity(float x, float y, float width, float height)
-: position(x, y, 0.0f), size(width, height, 0.0f) {}
+Entity::Entity(float x, float y, float width, float height, EntityType type)
+: position(x, y, 0.0f), size(width, height, 0.0f), type(type) {}
 
-Entity::Entity(float x, float y, SheetSprite *sprite)
-: position(x, y, 0.0f), size(0.0f, 0.0f, 0.0f), sprite(sprite) {
+Entity::Entity(float x, float y, SheetSprite *sprite, EntityType type)
+: position(x, y, 0.0f), size(0.0f, 0.0f, 0.0f), sprite(sprite), type(type) {
     
     float aspect = sprite->width / sprite->height;
     size.x = aspect * sprite->size;
@@ -20,8 +20,9 @@ Entity::Entity(float x, float y, SheetSprite *sprite)
 
 void Entity::SetSprite(SheetSprite* newSprite) {
     sprite = newSprite;
-    size.x = sprite->width * sprite->size * projectWidth;
-    size.y = sprite->height * sprite->size * projectHeight;
+    float aspect = newSprite->width / newSprite->height;
+    size.x = aspect * newSprite->size;
+    size.y = newSprite->size;
 }
 
 void Entity::Render(ShaderProgram& program, Matrix& modelMatrix) const {
