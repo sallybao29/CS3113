@@ -60,7 +60,7 @@ GLuint LoadTexture(const char *filePath) {
 
 void DrawText(ShaderProgram& program, int fontTexture, std::string text, float size, float spacing, float x, float y) {
     // Center the text at (x, y)
-    float centerX = x - (text.size() * size + (text.size() - 1) * spacing) / (float)2;
+    float centerX = x - (text.size() * size + (text.size() - 1) * spacing) / 2;
     float centerY = y + size / 2;
     modelMatrix.Identity();
     modelMatrix.Translate(centerX, centerY, 0.0f);
@@ -165,7 +165,7 @@ void ProcessTitleScreenInput() {
         else if (event.type == SDL_KEYDOWN) {
             if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
                 if (mode == STATE_GAME_OVER) {
-                    state.Restart();
+                    state.Initialize();
                 }
                 mode = STATE_GAME_LEVEL;
             }

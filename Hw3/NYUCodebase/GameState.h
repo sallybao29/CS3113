@@ -11,7 +11,6 @@ public:
     GameState();
     ~GameState();
     void Initialize();
-    void Restart();
     void ResetEnemies();
     void ProcessInput();
     void Update(float elapsed);
@@ -27,6 +26,7 @@ public:
     
     int bulletIndex = 0;
     int score = 0;
+    int enemiesLeft;
     
     // Shots per second
     float playerShootRate = 2.0f;

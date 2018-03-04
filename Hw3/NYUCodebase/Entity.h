@@ -14,6 +14,7 @@ class Vector3 {
 public:
     Vector3();
     Vector3(float x, float y, float z);
+    void set(float x, float y, float z);
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
@@ -32,6 +33,7 @@ class Entity {
 public:
     Entity(float x, float y, float width, float height, EntityType type);
     Entity(float x, float y, SheetSprite *sprite, EntityType type);
+    Entity();
     
     void Update(float elapsed);
     void Render(ShaderProgram& program, Matrix& modelMatrix) const;

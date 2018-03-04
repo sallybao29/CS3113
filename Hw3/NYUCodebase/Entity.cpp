@@ -7,6 +7,12 @@ Vector3::Vector3() {}
 
 Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
+void Vector3::set(float x, float y, float z) {
+    this->x = x;
+    this->y = y;
+    this->z = z;
+}
+
 Entity::Entity(float x, float y, float width, float height, EntityType type)
 : position(x, y, 0.0f), size(width, height, 0.0f), type(type) {}
 
@@ -17,6 +23,8 @@ Entity::Entity(float x, float y, SheetSprite *sprite, EntityType type)
     size.x = aspect * sprite->size;
     size.y = sprite->size;
 }
+
+Entity::Entity() {}
 
 void Entity::SetSprite(SheetSprite* newSprite) {
     sprite = newSprite;
