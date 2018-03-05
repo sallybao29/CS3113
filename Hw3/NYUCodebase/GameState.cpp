@@ -1,5 +1,4 @@
 #include <map>
-#include <algorithm>
 #include "main.h"
 #include "ShaderProgram.h"
 #include "SheetSprite.h"
@@ -10,6 +9,10 @@
 #define ENEMY_ROWS 5
 #define ENEMY_COLS 11
 #define MAX_BULLETS 30
+
+#define LEFT 0
+#define RIGHT 1
+#define BOT 2
 
 std::map<EntityType, int> pointsTable = {
     {ENTITY_ENEMY_BLACK, 40},
@@ -69,6 +72,10 @@ void GameState::ResetEnemies() {
     }
     
     enemiesLeft = ENEMY_ROWS * ENEMY_COLS;
+    
+    activeBorders[LEFT] = 0;
+    activeBorders[RIGHT] = ENEMY_COLS - 1;
+    activeBorders[BOT] = ENEMY_ROWS - 1;
 }
 
 void GameState::TimeAndShoot(const Entity& entity, Timer& timer, float interval) {
@@ -112,17 +119,39 @@ void GameState::ProcessInput() {
     }
 }
 
+void GameState::CalculateActiveBorders() {
+    int l = 0, r = 0, b = 0;
+    for (size_t i = 0; i < enemies.size(); ++i) {
+        if (enemies[i].health) {
+            if (i % ENEMY_COLS == activeBorders[LEFT])
+                l += 1;
+            if (i % ENEMY_COLS == activeBorders[RIGHT])
+                r += 1;
+            if (i / ENEMY_COLS == activeBorders[BOT])
+                b += 1;
+        }
+    }
+    
+    if (l == 0 && activeBorders[LEFT] < ENEMY_COLS - 1)
+        activeBorders[LEFT] += 1;
+    if (r == 0 && activeBorders[RIGHT] > 0)
+        activeBorders[RIGHT] -= 1;
+    if (b == 0 && activeBorders[BOT] > 0)
+        activeBorders[BOT] -= 1;
+}
+
 void GameState::Update(float elapsed) {
     player->Update(elapsed);
     
-    float rightBorder = enemies[ENEMY_COLS - 1].position.x + enemies[ENEMY_COLS - 1].size.x / 2;
-    float leftBorder = enemies[0].position.x - enemies[0].size.x / 2;
-    float bottomBorder = enemies.back().position.y - enemies.back().size.y / 2;
+    CalculateActiveBorders();
+    
+    float rightBorder = enemies[activeBorders[RIGHT]].position.x + enemies[activeBorders[RIGHT]].size.x / 2;
+    float leftBorder = enemies[activeBorders[LEFT]].position.x - enemies[activeBorders[LEFT]].size.x / 2;
+    float bottomBorder = enemies[activeBorders[BOT] * ENEMY_COLS].position.y - enemies[activeBorders[BOT] * ENEMY_COLS].size.y / 2;
     
     bool right = rightBorder > projectWidth * 0.80f;
     bool left = leftBorder < -projectWidth * 0.80f;
     bool bottom = bottomBorder < -projectHeight * 0.80f;
-    
     // Update enemies
     for (size_t i = 0; i < enemies.size(); ++i) {
         if (bottom) {
@@ -138,8 +167,8 @@ void GameState::Update(float elapsed) {
     
     for (size_t i = 0; i < MAX_BULLETS; ++i) {
         bullets[i].Update(elapsed);
-        // Check collision between bullets and enemies
         for (size_t j = 0; j < enemies.size(); ++ j) {
+             // Check collision between bullets and enemies
             if (bullets[i].CollidesWith(enemies[j]) && bullets[i].velocity.y > 0) {
                 enemies[j].health = 0;
                 enemiesLeft -= 1;
@@ -152,6 +181,7 @@ void GameState::Update(float elapsed) {
                 score += pointsTable[enemies[j].type];
             }
         }
+        
         // Check collision between bullets and player
         if (bullets[i].CollidesWith(*player)) {
             player->health -= 1;
@@ -167,6 +197,7 @@ void GameState::Update(float elapsed) {
     if (enemiesLeft == 0) {
         ResetEnemies();
         shootTimers[1].reset();
+        shootTimers[0].reset();
         enemyShootRate += 0.2f;
         if (enemyShootRate >= 3.0f) {
             enemyShootRate = 3.0f;
