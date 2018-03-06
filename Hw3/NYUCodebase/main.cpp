@@ -174,12 +174,16 @@ void ProcessTitleScreenInput() {
 }
 
 void RenderTitleScreen() {
-    DrawText(program, font, "SPACE INVADERS", 0.30f, 0.0f, 0.0f, 0.0f);
-    DrawText(program, font, "PRESS SPACE TO START", 0.15f, 0.0f, 0.0f, -0.5f);
+    DrawText(program, font, "SPACE INVADERS", 0.30f, 0.0f, 0.0f, 0.5f);
+    DrawText(program, font, "USE <> TO MOVE, ^ TO SHOOT", 0.20f, 0.0f, 0.0f, -0.4);
+    DrawText(program, font, "PRESS SPACE TO START", 0.15f, 0.0f, 0.0f, -0.6f);
 }
 
 void RenderGameOver(){
+    std::ostringstream sstream;
+    sstream << " FINAL SCORE: " << state.score;
     DrawText(program, font, "GAME OVER!", 0.30f, 0.0f, 0.0f, 0.0f);
+    DrawText(program, font, sstream.str(), 0.20f, 0.0f, 0.0f, -0.3f);
     DrawText(program, font, "PRESS SPACE TO TRY AGAIN", 0.15f, 0.0f, 0.0f, -0.5f);
 }
 
