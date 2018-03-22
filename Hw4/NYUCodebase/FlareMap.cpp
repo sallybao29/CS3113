@@ -1,30 +1,35 @@
 #include <fstream>
 #include <sstream>
-#include <vector>
+#include <cassert>
 #include <SDL_opengl.h>
-#include "Tilemap.hpp"
+#include "FlareMap.hpp"
 #include "ShaderProgram.h"
 
-Tilemap::Tilemap(float tileSize) : tileSize(tileSize) {}
+FlareMap::FlareMap(float tileSize)
+: tileSize(tileSize), mapData(nullptr), mapWidth(0), mapHeight(0) {}
 
-void Tilemap::SetSpriteSheet(int sheet, size_t spriteCountX, size_t spriteCountY) {
+void FlareMap::SetSpriteSheet(int sheet, size_t spriteCountX, size_t spriteCountY) {
     spriteSheetTexture = sheet;
     this->spriteCountX = spriteCountX;
     this->spriteCountY = spriteCountY;
 }
 
-void Tilemap::GetKeyValuePair(const std::string& line, std::string& key, std::string& value) const {
-    std::istringstream sStream(line);
-    getline(sStream, key, '=');
-    getline(sStream, value);
+FlareMap::~FlareMap() {
+    for (int i = 0; i < mapHeight; i++) {
+        delete [] mapData[i];
+    }
+    delete [] mapData;
 }
 
-void Tilemap::LoadFromFile(std::string filename) {
+void FlareMap::Load(std::string filename) {
     std::ifstream infile(filename);
+    if (infile.fail()) {
+        assert(false);
+    }
     std::string line;
     while (getline(infile, line)) {
         if (line == "[header]") {
-            if (!ReadHeader(infile)) break;
+            if (!ReadHeader(infile)) assert(false);
         }
         else if (line == "[layer]") {
             ReadLayerData(infile);
@@ -36,14 +41,16 @@ void Tilemap::LoadFromFile(std::string filename) {
     infile.close();
 }
 
-bool Tilemap::ReadHeader(std::ifstream& stream) {
+bool FlareMap::ReadHeader(std::ifstream& stream) {
     std::string line;
-    std::string key,value;
     int width = -1;
     int height = -1;
     while (getline(stream, line)) {
         if (line == "") { break; }
-        GetKeyValuePair(line, key, value);
+        std::istringstream sStream(line);
+        std::string key,value;
+        std::getline(sStream, key, '=');
+        std::getline(sStream, value);
         if (key == "width") {
             width = atoi(value.c_str());
         }
@@ -58,20 +65,22 @@ bool Tilemap::ReadHeader(std::ifstream& stream) {
         // allocate our map data
         mapWidth = width;
         mapHeight = height;
-        tilemap = new unsigned int*[mapHeight];
+        mapData = new unsigned int*[mapHeight];
         for (int i = 0; i < mapHeight; ++i) {
-            tilemap[i] = new unsigned int[mapWidth];
+            mapData[i] = new unsigned int[mapWidth];
         }
         return true;
     }
 }
 
-bool Tilemap::ReadLayerData(std::ifstream& stream) {
+bool FlareMap::ReadLayerData(std::ifstream& stream) {
     std::string line;
-    std::string key,value;
     while (getline(stream, line)) {
         if (line == "") break;
-        GetKeyValuePair(line, key, value);
+        std::istringstream sStream(line);
+        std::string key,value;
+        std::getline(sStream, key, '=');
+        std::getline(sStream, value);
         if (key == "data") {
             for (int y = 0; y < mapHeight; y++) {
                 getline(stream, line);
@@ -81,7 +90,7 @@ bool Tilemap::ReadLayerData(std::ifstream& stream) {
                     getline(lineStream, tile, ',');
                     unsigned char val =  (unsigned char)atoi(tile.c_str());
                     // Tiles in this format are indexed from 1 not 0
-                    tilemap[y][x] = val >  0 ? val - 1 : 0;
+                    mapData[y][x] = val >  0 ? val - 1 : 0;
                 }
             }
         }
@@ -89,17 +98,42 @@ bool Tilemap::ReadLayerData(std::ifstream& stream) {
     return true;
 }
 
-bool Tilemap::ReadEntityData(std::ifstream& file) {
+bool FlareMap::ReadEntityData(std::ifstream& stream) {
+    std::string line;
+    std::string type;
+    while (getline(stream, line)) {
+        if (line == "") { break; }
+        std::string key,value;
+        std::istringstream sStream(line);
+        std::getline(sStream, key, '=');
+        std::getline(sStream, value);
+        if (key == "type") {
+            type = value;
+        }
+        else if (key == "location") {
+            std::istringstream lineStream(value);
+            std::string xPosition, yPosition;
+            getline(lineStream, xPosition, ',');
+            getline(lineStream, yPosition, ',');
+            
+            FlareMapEntity newEntity;
+            newEntity.type = type;
+            newEntity.x = std::atoi(xPosition.c_str());
+            newEntity.y = std::atoi(yPosition.c_str());
+            entities.push_back(newEntity);
+        }
+    }
     return true;
 }
 
-void Tilemap::Render(ShaderProgram& shader) {
+void FlareMap::Render(ShaderProgram& shader) {
     std::vector<float> vertexData;
     std::vector<float> texCoordData;
     for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
-            float u = (float)(((int)tilemap[y][x]) % spriteCountX) / (float) spriteCountX;
-            float v = (float)(((int)tilemap[y][x]) / spriteCountX) / (float) spriteCountY;
+            if (mapData[y][x] == 0) continue;
+            float u = (float)(mapData[y][x] % spriteCountX) / (float) spriteCountX;
+            float v = (float)(mapData[y][x] / spriteCountX) / (float) spriteCountY;
             float spriteWidth = 1.0f/(float)spriteCountX;
             float spriteHeight = 1.0f/(float)spriteCountY;
             vertexData.insert(vertexData.end(), {
@@ -117,8 +151,8 @@ void Tilemap::Render(ShaderProgram& shader) {
                 u + spriteWidth, v + spriteHeight,
                 
                 u, v,
-                u+spriteWidth, v+(spriteHeight),
-                u+spriteWidth, v
+                u + spriteWidth, v + spriteHeight,
+                u + spriteWidth, v
             });
         }
     }

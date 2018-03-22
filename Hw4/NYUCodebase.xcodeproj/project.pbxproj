@@ -8,7 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		48D414AC2062DC8100FC4896 /* GameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D414AA2062DC8100FC4896 /* GameState.cpp */; };
-		48D414AF2062E30400FC4896 /* Tilemap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D414AD2062E30400FC4896 /* Tilemap.cpp */; };
+		48D414AF2062E30400FC4896 /* FlareMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D414AD2062E30400FC4896 /* FlareMap.cpp */; };
+		48D414B22063044100FC4896 /* GameUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D414B02063044100FC4896 /* GameUtilities.cpp */; };
+		48D414B42063065A00FC4896 /* arne_sprites.png in Resources */ = {isa = PBXBuildFile; fileRef = 48D414B32063065A00FC4896 /* arne_sprites.png */; };
+		48D414B62063086700FC4896 /* sidescroller_map.txt in Resources */ = {isa = PBXBuildFile; fileRef = 48D414B52063086700FC4896 /* sidescroller_map.txt */; };
+		48D414B920630B9B00FC4896 /* SheetSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D414B720630B9B00FC4896 /* SheetSprite.cpp */; };
+		48D414BC2063122A00FC4896 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D414BA2063122A00FC4896 /* Entity.cpp */; };
 		6D5A86AE19AE5C710066C1FD /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D5A86AD19AE5C710066C1FD /* Cocoa.framework */; };
 		6D5A86B819AE5C710066C1FD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6D5A86B619AE5C710066C1FD /* InfoPlist.strings */; };
 		6D5A86BA19AE5C710066C1FD /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6D5A86B919AE5C710066C1FD /* main.cpp */; };
@@ -29,8 +34,16 @@
 		48D414A82062D43300FC4896 /* Vector3.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Vector3.hpp; sourceTree = "<group>"; };
 		48D414AA2062DC8100FC4896 /* GameState.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GameState.cpp; sourceTree = "<group>"; };
 		48D414AB2062DC8100FC4896 /* GameState.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GameState.hpp; sourceTree = "<group>"; };
-		48D414AD2062E30400FC4896 /* Tilemap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Tilemap.cpp; sourceTree = "<group>"; };
-		48D414AE2062E30400FC4896 /* Tilemap.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Tilemap.hpp; sourceTree = "<group>"; };
+		48D414AD2062E30400FC4896 /* FlareMap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FlareMap.cpp; sourceTree = "<group>"; };
+		48D414AE2062E30400FC4896 /* FlareMap.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FlareMap.hpp; sourceTree = "<group>"; };
+		48D414B02063044100FC4896 /* GameUtilities.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GameUtilities.cpp; sourceTree = "<group>"; };
+		48D414B12063044100FC4896 /* GameUtilities.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GameUtilities.hpp; sourceTree = "<group>"; };
+		48D414B32063065A00FC4896 /* arne_sprites.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arne_sprites.png; sourceTree = "<group>"; };
+		48D414B52063086700FC4896 /* sidescroller_map.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sidescroller_map.txt; sourceTree = "<group>"; };
+		48D414B720630B9B00FC4896 /* SheetSprite.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SheetSprite.cpp; sourceTree = "<group>"; };
+		48D414B820630B9B00FC4896 /* SheetSprite.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SheetSprite.hpp; sourceTree = "<group>"; };
+		48D414BA2063122A00FC4896 /* Entity.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Entity.cpp; sourceTree = "<group>"; };
+		48D414BB2063122A00FC4896 /* Entity.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Entity.hpp; sourceTree = "<group>"; };
 		6D5A86AA19AE5C710066C1FD /* NYUCodebase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NYUCodebase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D5A86AD19AE5C710066C1FD /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		6D5A86B019AE5C710066C1FD /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -151,20 +164,28 @@
 		6D5A86E119AE5CAA0066C1FD /* Code */ = {
 			isa = PBXGroup;
 			children = (
-				6DEF23BB1B96CC2600BCE792 /* fragment.glsl */,
+				48D414B32063065A00FC4896 /* arne_sprites.png */,
+				48D414BA2063122A00FC4896 /* Entity.cpp */,
+				48D414BB2063122A00FC4896 /* Entity.hpp */,
+				48D414AD2062E30400FC4896 /* FlareMap.cpp */,
+				48D414AE2062E30400FC4896 /* FlareMap.hpp */,
 				6DE9D2F01BA6AB8C002D599C /* fragment_textured.glsl */,
-				6DC707691BA7273500225B7D /* vertex_textured.glsl */,
+				6DEF23BB1B96CC2600BCE792 /* fragment.glsl */,
+				48D414AA2062DC8100FC4896 /* GameState.cpp */,
+				48D414AB2062DC8100FC4896 /* GameState.hpp */,
+				48D414B02063044100FC4896 /* GameUtilities.cpp */,
+				48D414B12063044100FC4896 /* GameUtilities.hpp */,
+				6D5A86B919AE5C710066C1FD /* main.cpp */,
 				6DEF23BC1B96CC2600BCE792 /* Matrix.cpp */,
 				6DEF23BD1B96CC2600BCE792 /* Matrix.h */,
 				6DEF23BE1B96CC2600BCE792 /* ShaderProgram.cpp */,
 				6DEF23BF1B96CC2600BCE792 /* ShaderProgram.h */,
-				6DEF23C01B96CC2600BCE792 /* vertex.glsl */,
-				6D5A86B919AE5C710066C1FD /* main.cpp */,
+				48D414B720630B9B00FC4896 /* SheetSprite.cpp */,
+				48D414B820630B9B00FC4896 /* SheetSprite.hpp */,
+				48D414B52063086700FC4896 /* sidescroller_map.txt */,
 				48D414A82062D43300FC4896 /* Vector3.hpp */,
-				48D414AA2062DC8100FC4896 /* GameState.cpp */,
-				48D414AB2062DC8100FC4896 /* GameState.hpp */,
-				48D414AD2062E30400FC4896 /* Tilemap.cpp */,
-				48D414AE2062E30400FC4896 /* Tilemap.hpp */,
+				6DC707691BA7273500225B7D /* vertex_textured.glsl */,
+				6DEF23C01B96CC2600BCE792 /* vertex.glsl */,
 			);
 			name = Code;
 			sourceTree = "<group>";
@@ -224,7 +245,9 @@
 			files = (
 				6D5A86B819AE5C710066C1FD /* InfoPlist.strings in Resources */,
 				6DEF23C11B96CC2600BCE792 /* fragment.glsl in Resources */,
+				48D414B42063065A00FC4896 /* arne_sprites.png in Resources */,
 				6DE9D2F11BA6AB8C002D599C /* fragment_textured.glsl in Resources */,
+				48D414B62063086700FC4896 /* sidescroller_map.txt in Resources */,
 				6D5A86C619AE5C710066C1FD /* Images.xcassets in Resources */,
 				6D5A86BE19AE5C710066C1FD /* Credits.rtf in Resources */,
 				6DEF23C41B96CC2600BCE792 /* vertex.glsl in Resources */,
@@ -239,8 +262,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				48D414AF2062E30400FC4896 /* Tilemap.cpp in Sources */,
+				48D414BC2063122A00FC4896 /* Entity.cpp in Sources */,
+				48D414AF2062E30400FC4896 /* FlareMap.cpp in Sources */,
 				6DEF23C31B96CC2600BCE792 /* ShaderProgram.cpp in Sources */,
+				48D414B920630B9B00FC4896 /* SheetSprite.cpp in Sources */,
+				48D414B22063044100FC4896 /* GameUtilities.cpp in Sources */,
 				48D414AC2062DC8100FC4896 /* GameState.cpp in Sources */,
 				6DEF23C21B96CC2600BCE792 /* Matrix.cpp in Sources */,
 				6D5A86BA19AE5C710066C1FD /* main.cpp in Sources */,

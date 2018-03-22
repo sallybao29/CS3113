@@ -4,11 +4,11 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_image.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+
 #include "Vector3.hpp"
-#include "ShaderProgram.h"
-#include "Tilemap.hpp"
+#include "GameUtilities.hpp"
+#include "SheetSprite.hpp"
+#include "GameState.hpp"
 
 #ifdef _WINDOWS
 #define RESOURCE_FOLDER ""
@@ -16,44 +16,81 @@
 #define RESOURCE_FOLDER "NYUCodebase.app/Contents/Resources/"
 #endif
 
+#define FIXED_TIMESTEP 0.0166666f
+#define MAX_TIMESTEPS 6
+
 SDL_Window* displayWindow;
 
-const GLuint width = 640 * 2,
-height = 360 * 2;
-const float aspectRatio = (float)width / (float)height,
-projectHeight = 2.0f,
-projectWidth = projectHeight * aspectRatio,
-projectDepth = 1.0f;
+Vector3 windowSize(1280, 720, 0);
+Vector3 projection(2.0f * windowSize.x / windowSize.y, 2.0f, 1.0f);
 
 ShaderProgram program;
-Matrix projectionMatrix, modelMatrix, viewMatrix;
 
 SDL_Event event;
 bool done = false;
 
+FlareMap map(0.3f);
+GameState state;
 
 void Setup() {
     SDL_Init(SDL_INIT_VIDEO);
-    displayWindow = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 360, SDL_WINDOW_OPENGL);
+    displayWindow = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowSize.x, windowSize.y, SDL_WINDOW_OPENGL);
     SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
     SDL_GL_MakeCurrent(displayWindow, context);
 #ifdef _WINDOWS
     glewInit();
 #endif
+    glViewport(0, 0, windowSize.x, windowSize.y);
+    
+    Matrix projectionMatrix, modelMatrix, viewMatrix;
+    
+    program.Load(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
+    projectionMatrix.SetOrthoProjection(-projection.x, projection.x,
+                                        -projection.y, projection.y,
+                                        -projection.z, projection.z);
+    
+    program.SetProjectionMatrix(projectionMatrix);
+    program.SetViewMatrix(viewMatrix);
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glClearColor(10.0f / 255.0f, 120.0f / 255.0f, 172.0f / 255.0f, 1.0f);
+    glUseProgram(program.programID);
+    
+    GLuint spriteSheet = LoadTexture(RESOURCE_FOLDER"arne_sprites.png", GL_NEAREST);
+    map.SetSpriteSheet(spriteSheet, 16, 8);
+    map.Load(RESOURCE_FOLDER"sidescroller_map.txt");
+    
+    state.Initialize(&program, &projection, &map);
 }
 
 int main(int argc, char *argv[])
 {
-    Setup();
+    float elapsed = 0.0f;
+    float accumulator = 0.0f;
+    float lastFrameTicks = 0.0f;
     
+    Setup();
     while (!done) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
-                done = true;
-            }
+        state.ProcessInput(event, done);
+        
+        float ticks = (float)SDL_GetTicks() / 1000.0f;
+        elapsed = ticks - lastFrameTicks;
+        lastFrameTicks = ticks;
+        
+        elapsed += accumulator;
+        if (elapsed < FIXED_TIMESTEP) {
+            accumulator = elapsed;
+            continue;
         }
-        glClear(GL_COLOR_BUFFER_BIT);
-        SDL_GL_SwapWindow(displayWindow);
+        
+        while (elapsed >= FIXED_TIMESTEP) {
+            state.Update(FIXED_TIMESTEP);
+            elapsed -= FIXED_TIMESTEP;
+        }
+        accumulator = elapsed;
+        
+        state.Render(displayWindow);
     }
     
     SDL_Quit();
