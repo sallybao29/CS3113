@@ -1,10 +1,18 @@
 #include "ShaderProgram.h"
 #include "SheetSprite.hpp"
 
-SheetSprite::SheetSprite(unsigned int textureID, float u, float v, float width, float height, float size)
-: size(size), textureID(textureID), u(u), v(v), width(width), height(height) {}
+SheetSprite::SheetSprite(unsigned int textureID, float u, float v, float width, float height, float aspect, float size)
+: textureID(textureID), u(u), v(v), width(width), height(height), size(size), aspect(aspect) {}
 
-void SheetSprite::Draw(ShaderProgram& program) const {
+SheetSprite::SheetSprite(unsigned int textureID, int index, int spriteCountX, int spriteCountY, float aspect, float size)
+: textureID(textureID), size(size), aspect(aspect) {
+    u = (float)(index % spriteCountX) / (float) spriteCountX;
+    v = ((float)index / spriteCountX) / (float) spriteCountY;
+    width = 1.0/(float)spriteCountX;
+    height = 1.0/(float)spriteCountY;
+}
+
+void SheetSprite::Render(ShaderProgram& program) const {
     glBindTexture(GL_TEXTURE_2D, textureID);
     GLfloat texCoords[] = {
         u, v + height,
@@ -12,9 +20,8 @@ void SheetSprite::Draw(ShaderProgram& program) const {
         u, v,
         u + width, v,
         u, v + height,
-        u + width, v+height
+        u + width, v + height
     };
-    float aspect = width / height;
     float vertices[] = {
         -0.5f * size * aspect, -0.5f * size,
         0.5f * size * aspect, 0.5f * size,

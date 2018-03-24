@@ -90,7 +90,7 @@ bool FlareMap::ReadLayerData(std::ifstream& stream) {
                     getline(lineStream, tile, ',');
                     unsigned char val =  (unsigned char)atoi(tile.c_str());
                     // Tiles in this format are indexed from 1 not 0
-                    mapData[y][x] = val >  0 ? val - 1 : 0;
+                    mapData[y][x] = val;
                 }
             }
         }
@@ -131,9 +131,11 @@ void FlareMap::Render(ShaderProgram& shader) {
     std::vector<float> texCoordData;
     for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
+            // Skip empty tiles
             if (mapData[y][x] == 0) continue;
-            float u = (float)(mapData[y][x] % spriteCountX) / (float) spriteCountX;
-            float v = (float)(mapData[y][x] / spriteCountX) / (float) spriteCountY;
+            // Tiles in this format are indexed from 1 not 0
+            float u = (float)((mapData[y][x] - 1) % spriteCountX) / (float) spriteCountX;
+            float v = (float)((mapData[y][x] - 1) / spriteCountX) / (float) spriteCountY;
             float spriteWidth = 1.0f/(float)spriteCountX;
             float spriteHeight = 1.0f/(float)spriteCountY;
             vertexData.insert(vertexData.end(), {
@@ -167,4 +169,9 @@ void FlareMap::Render(ShaderProgram& shader) {
     
     glDisableVertexAttribArray(shader.positionAttribute);
     glDisableVertexAttribArray(shader.texCoordAttribute);
+}
+
+void FlareMap::worldToTileCoordinates(float worldX, float worldY, int& gridX, int& gridY) const {
+    gridX = (int) (worldX / tileSize);
+    gridY = (int) (worldY / tileSize);
 }

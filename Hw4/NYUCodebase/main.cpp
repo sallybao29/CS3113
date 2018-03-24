@@ -1,13 +1,7 @@
 #ifdef _WINDOWS
 #include <GL/glew.h>
 #endif
-#include <SDL.h>
-#include <SDL_opengl.h>
 #include <SDL_image.h>
-
-#include "Vector3.hpp"
-#include "GameUtilities.hpp"
-#include "SheetSprite.hpp"
 #include "GameState.hpp"
 
 #ifdef _WINDOWS
@@ -20,17 +14,17 @@
 #define MAX_TIMESTEPS 6
 
 SDL_Window* displayWindow;
-
 Vector3 windowSize(1280, 720, 0);
 Vector3 projection(2.0f * windowSize.x / windowSize.y, 2.0f, 1.0f);
-
 ShaderProgram program;
-
-SDL_Event event;
-bool done = false;
 
 FlareMap map(0.3f);
 GameState state;
+
+SDL_Event event;
+bool done = false;
+const Uint8 *keys = SDL_GetKeyboardState(nullptr);
+GameResource resources;
 
 void Setup() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -42,7 +36,7 @@ void Setup() {
 #endif
     glViewport(0, 0, windowSize.x, windowSize.y);
     
-    Matrix projectionMatrix, modelMatrix, viewMatrix;
+    Matrix projectionMatrix, viewMatrix;
     
     program.Load(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
     projectionMatrix.SetOrthoProjection(-projection.x, projection.x,
@@ -61,7 +55,14 @@ void Setup() {
     map.SetSpriteSheet(spriteSheet, 16, 8);
     map.Load(RESOURCE_FOLDER"sidescroller_map.txt");
     
-    state.Initialize(&program, &projection, &map);
+    resources.event = &event;
+    resources.keys = keys;
+    resources.projection = &projection;
+    resources.shader = &program;
+    resources.displayWindow = displayWindow;
+    resources.done = &done;
+    
+    state.Initialize(&resources, &map);
 }
 
 int main(int argc, char *argv[])
@@ -72,7 +73,7 @@ int main(int argc, char *argv[])
     
     Setup();
     while (!done) {
-        state.ProcessInput(event, done);
+        state.ProcessInput();
         
         float ticks = (float)SDL_GetTicks() / 1000.0f;
         elapsed = ticks - lastFrameTicks;
@@ -90,7 +91,7 @@ int main(int argc, char *argv[])
         }
         accumulator = elapsed;
         
-        state.Render(displayWindow);
+        state.Render();
     }
     
     SDL_Quit();

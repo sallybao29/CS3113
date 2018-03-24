@@ -20,6 +20,7 @@ public:
     void Load(std::string filename);
     void SetSpriteSheet(int sheet, size_t spriteCountX, size_t spriteCountY);
     void Render(ShaderProgram& shader);
+    void worldToTileCoordinates(float worldX, float worldY, int& gridX, int& gridY) const;
     
     unsigned int** mapData;
     std::vector<FlareMapEntity> entities;

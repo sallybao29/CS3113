@@ -22,7 +22,8 @@ public:
     
     void Update(float elapsed);
     void Render(ShaderProgram& program, Matrix& modelMatrix) const;
-    bool CollidesWith(const Entity& other) const;
+    bool CollidesWith(const Entity& other);
+    bool CollidesWith(float x, float y, float width, float height);
     void SetSprite(SheetSprite* newSprite);
     
     SheetSprite* sprite;
@@ -34,7 +35,6 @@ public:
     
     float rotation = 0.0f;
     
-    bool isStatic;
     EntityType entityType;
     
     bool collidedTop;
