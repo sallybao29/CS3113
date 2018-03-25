@@ -2,10 +2,10 @@
 #include "SheetSprite.hpp"
 
 SheetSprite::SheetSprite(unsigned int textureID, float u, float v, float width, float height, float aspect, float size)
-: textureID(textureID), u(u), v(v), width(width), height(height), size(size), aspect(aspect) {}
+: textureID(textureID), u(u), v(v), width(width), height(height), size(size), aspect(aspect), reversed(false) {}
 
 SheetSprite::SheetSprite(unsigned int textureID, int index, int spriteCountX, int spriteCountY, float aspect, float size)
-: textureID(textureID), size(size), aspect(aspect) {
+: textureID(textureID), size(size), aspect(aspect), reversed(false) {
     u = (float)(index % spriteCountX) / (float) spriteCountX;
     v = ((float)index / spriteCountX) / (float) spriteCountY;
     width = 1.0/(float)spriteCountX;
@@ -22,6 +22,11 @@ void SheetSprite::Render(ShaderProgram& program) const {
         u, v + height,
         u + width, v + height
     };
+    
+    float aspect = this->aspect;
+    if (reversed) {
+        aspect *= -1;
+    }
     float vertices[] = {
         -0.5f * size * aspect, -0.5f * size,
         0.5f * size * aspect, 0.5f * size,

@@ -24,6 +24,8 @@ public:
     // Aspect ratio of actual sprite
     float aspect;
     float size;
+    
+    bool reversed;
 };
 
 #endif

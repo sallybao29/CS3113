@@ -28,6 +28,8 @@ void Entity::Render(ShaderProgram& program, Matrix& modelMatrix) const {
     modelMatrix.Rotate(rotation);
     
     program.SetModelMatrix(modelMatrix);
+    
+    sprite->reversed = acceleration.x < 0;
     sprite->Render(program);
 }
 

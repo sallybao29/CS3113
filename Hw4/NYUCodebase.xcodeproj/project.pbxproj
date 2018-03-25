@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4834756320674A9D00AAD99C /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4834756120674A9D00AAD99C /* Timer.cpp */; };
 		48D414AC2062DC8100FC4896 /* GameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D414AA2062DC8100FC4896 /* GameState.cpp */; };
 		48D414AF2062E30400FC4896 /* FlareMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D414AD2062E30400FC4896 /* FlareMap.cpp */; };
 		48D414B22063044100FC4896 /* GameUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D414B02063044100FC4896 /* GameUtilities.cpp */; };
@@ -31,6 +32,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4834756120674A9D00AAD99C /* Timer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
+		4834756220674A9D00AAD99C /* Timer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Timer.hpp; sourceTree = "<group>"; };
 		48D414A82062D43300FC4896 /* Vector3.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Vector3.hpp; sourceTree = "<group>"; };
 		48D414AA2062DC8100FC4896 /* GameState.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GameState.cpp; sourceTree = "<group>"; };
 		48D414AB2062DC8100FC4896 /* GameState.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GameState.hpp; sourceTree = "<group>"; };
@@ -186,6 +189,8 @@
 				48D414A82062D43300FC4896 /* Vector3.hpp */,
 				6DC707691BA7273500225B7D /* vertex_textured.glsl */,
 				6DEF23C01B96CC2600BCE792 /* vertex.glsl */,
+				4834756120674A9D00AAD99C /* Timer.cpp */,
+				4834756220674A9D00AAD99C /* Timer.hpp */,
 			);
 			name = Code;
 			sourceTree = "<group>";
@@ -268,6 +273,7 @@
 				48D414B920630B9B00FC4896 /* SheetSprite.cpp in Sources */,
 				48D414B22063044100FC4896 /* GameUtilities.cpp in Sources */,
 				48D414AC2062DC8100FC4896 /* GameState.cpp in Sources */,
+				4834756320674A9D00AAD99C /* Timer.cpp in Sources */,
 				6DEF23C21B96CC2600BCE792 /* Matrix.cpp in Sources */,
 				6D5A86BA19AE5C710066C1FD /* main.cpp in Sources */,
 			);

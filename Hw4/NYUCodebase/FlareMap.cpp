@@ -172,6 +172,14 @@ void FlareMap::Render(ShaderProgram& shader) {
 }
 
 void FlareMap::worldToTileCoordinates(float worldX, float worldY, int& gridX, int& gridY) const {
-    gridX = (int) (worldX / tileSize);
-    gridY = (int) (-worldY / tileSize);
+    gridX = worldToTileCoordX(worldX);
+    gridY = worldToTileCoordY(worldY);
+}
+
+int FlareMap::worldToTileCoordX(float worldX) const {
+    return (int) (worldX / tileSize);
+}
+
+int FlareMap::worldToTileCoordY(float worldY) const {
+    return (int) (-worldY / tileSize);
 }

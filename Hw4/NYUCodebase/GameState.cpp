@@ -21,7 +21,7 @@ void GameState::Initialize(GameResource* resource, FlareMap* map) {
     sprites.emplace_back(map->spriteSheetTexture, 80, map->spriteCountX, map->spriteCountY, 1.0f, 0.3);
     
     for (int i = 0; i < map->entities.size(); i++) {
-        PlaceEntity(map->entities[i].type, map->entities[i].x * map->tileSize, (map->entities[i].y - 1) * -map->tileSize);
+        PlaceEntity(map->entities[i].type, map->entities[i].x * map->tileSize, (map->entities[i].y - 1) * -map->tileSize - map->tileSize / 2);
     }
 }
 
@@ -30,11 +30,10 @@ void GameState::PlaceEntity(std::string type, float x, float y) {
         entities.emplace_back(x, y, &sprites[0], ENTITY_PLAYER);
         player = &entities.back();
     }
-    /*
     else if (type == "Enemy") {
         entities.emplace_back(x, y, &sprites[0], ENTITY_ENEMY);
+        entities.back().acceleration.x = ACCELERATION;
     }
-     */
 }
 
 void GameState::ProcessInput() {
@@ -47,23 +46,47 @@ void GameState::ProcessInput() {
             if (player->collidedBottom) {
                 if (event.key.keysym.scancode == SDL_SCANCODE_UP) {
                     player->velocity.y = 3.0f;
+                    timer.start();
                 }
             }
         }
-        else if (player->velocity.y > 0) {
-            player->velocity.y = 0.0f;
+        else if (event.type == SDL_KEYUP) {
+            if (event.key.keysym.scancode == SDL_SCANCODE_UP) {
+                player->acceleration.x = 0.0f;
+                //player->velocity.y = 0.0f;
+            }
+            else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT ||
+                     event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
+                player->acceleration.x = 0.0f;
+            }
         }
     }
     
     const Uint8* keys = resource->keys;
-    if (keys[SDL_SCANCODE_RIGHT] && player->collidedBottom) {
-        player->acceleration.x = ACCELERATION;
+    // Can only accelerate when standing on something
+    if (player->collidedBottom) {
+        if (keys[SDL_SCANCODE_RIGHT]) {
+            player->acceleration.x = ACCELERATION;
+        }
+        else if (keys[SDL_SCANCODE_LEFT]) {
+            player->acceleration.x = -ACCELERATION;
+        }
+        if (keys[SDL_SCANCODE_UP]) {
+            
+        }
     }
-    else if (keys[SDL_SCANCODE_LEFT] && player->collidedBottom) {
-        player->acceleration.x = -ACCELERATION;
-    }
-    else if (fabs(player->acceleration.x) > 0) {
-        player->acceleration.x = 0;
+    // If jumping, allow velocity to be set
+    else if (timer.isRunning()) {
+        if (keys[SDL_SCANCODE_RIGHT]) {
+            player->velocity.x = 1.0f;
+        }
+        else if (keys[SDL_SCANCODE_LEFT]) {
+            player->velocity.x = -1.0f;
+        }
+        if (timer.isOver(0.3f)) {
+            player->velocity.y = 0.0f;
+            timer.reset();
+        }
     }
 }
 
@@ -122,28 +145,32 @@ bool GameState::ResolveCollisionX(Entity& entity, int x, int y, float size) {
 }
 
 void GameState::CollideWithMap(Entity& entity, int direction) {
-    int startX, startY, endX, endY;
-    map->worldToTileCoordinates(entity.position.x - entity.size.x / 2, entity.position.y + entity.size.y / 2, startX, startY);
-    map->worldToTileCoordinates(entity.position.x + entity.size.x / 2, entity.position.y - entity.size.y / 2, endX, endY);
-    
     if (direction == COLLIDE_Y) {
-        for (int x = startX; x <= endX; x++) {
-            if (entity.velocity.y > 0) {
-                if (ResolveCollisionY(entity, x, startY, map->tileSize)) return;
-            }
-            else {
-                if (ResolveCollisionY(entity, x, endY, map->tileSize)) return;
-            }
+        // Sample 2 points along the width of the entity;
+        int midX1 = map->worldToTileCoordX(entity.position.x - entity.size.x / 4);
+        int midX2 = map->worldToTileCoordX(entity.position.x + entity.size.x / 4);
+        
+        if (entity.velocity.y > 0) {
+            int topY = map->worldToTileCoordY(entity.position.y + entity.size.y / 2);
+            if (!ResolveCollisionY(entity, midX1, topY, map->tileSize))
+                ResolveCollisionY(entity, midX2, topY, map->tileSize);
+        }
+        else {
+            int botY = map->worldToTileCoordY(entity.position.y - entity.size.y / 2);
+            if (!ResolveCollisionY(entity, midX1, botY, map->tileSize))
+                ResolveCollisionY(entity, midX2, botY, map->tileSize);
         }
     }
     else if (direction == COLLIDE_X) {
-        for (int y = startY; y <= endY; y++) {
-            if (entity.velocity.x > 0) {
-                if (ResolveCollisionX(entity, endX, y, map->tileSize)) return;
-            }
-            else {
-                if (ResolveCollisionY(entity, startX, y, map->tileSize)) return;
-            }
+        if (entity.velocity.x > 0) {
+            int rightX, rightY;
+            map->worldToTileCoordinates(entity.position.x + entity.size.x / 2, entity.position.y, rightX, rightY);
+            ResolveCollisionX(entity, rightX, rightY, map->tileSize);
+        }
+        else {
+            int leftX, leftY;
+            map->worldToTileCoordinates(entity.position.x - entity.size.x / 2, entity.position.y, leftX, leftY);
+            ResolveCollisionX(entity, leftX, leftY, map->tileSize);
         }
     }
 }
@@ -181,6 +208,15 @@ void GameState::Update(float elapsed) {
                 entity.position.x = map->mapWidth * map->tileSize - entity.size.x / 2 - DELTA;
             }
         }
+        
+        if (entity.entityType == ENTITY_ENEMY) {
+            if (entity.collidedLeft) {
+                entity.acceleration.x = ACCELERATION;
+            }
+            else if (entity.collidedRight) {
+                entity.acceleration.x = -ACCELERATION;
+            }
+        }
     }
 }
 
@@ -207,7 +243,10 @@ void GameState::Render() {
     shader.SetViewMatrix(viewMatrix);
 
     map->Render(shader);
-    player->Render(shader, modelMatrix);
+    
+    for (size_t i = 0; i < entities.size(); i++) {
+        entities[i].Render(shader, modelMatrix);
+    }
     
     SDL_GL_SwapWindow(resource->displayWindow);
 }

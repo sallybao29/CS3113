@@ -21,6 +21,8 @@ public:
     void SetSpriteSheet(int sheet, size_t spriteCountX, size_t spriteCountY);
     void Render(ShaderProgram& shader);
     void worldToTileCoordinates(float worldX, float worldY, int& gridX, int& gridY) const;
+    int worldToTileCoordX(float worldX) const ;
+    int worldToTileCoordY(float worldY) const ;
     
     unsigned int** mapData;
     std::vector<FlareMapEntity> entities;

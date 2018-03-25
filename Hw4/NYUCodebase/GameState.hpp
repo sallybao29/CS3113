@@ -8,6 +8,7 @@
 #include "Entity.hpp"
 #include "GameUtilities.hpp"
 #include "SheetSprite.hpp"
+#include "Timer.hpp"
 
 class GameState {
 public:
@@ -32,6 +33,8 @@ private:
     Entity* player;
     std::vector<Entity> entities;
     std::vector<SheetSprite> sprites;
+    
+    Timer timer;
 };
 
 #endif
