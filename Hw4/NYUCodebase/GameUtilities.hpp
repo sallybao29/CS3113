@@ -18,6 +18,7 @@ public:
     const Uint8* keys;
     SDL_Event* event;
     SDL_Window* displayWindow;
+    std::vector<GLuint> spriteSheets;
     bool* done;
 };
 

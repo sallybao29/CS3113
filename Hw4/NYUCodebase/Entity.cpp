@@ -40,13 +40,17 @@ void Entity::Update(float elapsed) {
     collidedBottom = false;
 }
 
-bool Entity::CollidesWith(const Entity& other) {
+bool Entity::CollidesWith(const Entity& other) const {
     return CollidesWith(other.position.x, other.position.y, other.size.x, other.size.y);
 }
 
-bool Entity::CollidesWith(float x, float y, float width, float height) {
-    return CollidesWithX(x, width) || CollidesWithY(y, height);
+bool Entity::CollidesWith(float x, float y, float width, float height) const {
+    return !(position.y - size.y / 2 > y + height / 2 ||
+             position.y + size.y / 2 < y - height / 2 ||
+             position.x + size.x / 2 < x - width / 2 ||
+             position.x - size.x / 2 > x + width / 2);
 }
+
 
 bool Entity::CollidesWithX(float x, float width) {
     collidedLeft = position.x - size.x / 2 < x + width / 2 && position.x - size.x / 2 > x - width / 2;

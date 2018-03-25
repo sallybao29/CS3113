@@ -9,7 +9,10 @@ void Timer::start() {
 }
 
 float Timer::getTime() const {
-    return (float)SDL_GetTicks() / 1000.0f - beg;
+    if (running)
+        return (float)SDL_GetTicks() / 1000.0f - beg;
+    else
+        return beg;
 }
 
 bool Timer::isOver(float seconds) const {

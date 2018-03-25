@@ -52,6 +52,7 @@ void Setup() {
     glUseProgram(program.programID);
     
     GLuint spriteSheet = LoadTexture(RESOURCE_FOLDER"arne_sprites.png", GL_NEAREST);
+    GLuint font = LoadTexture(RESOURCE_FOLDER"font1.png", GL_NEAREST);
     map.SetSpriteSheet(spriteSheet, 16, 8);
     map.Load(RESOURCE_FOLDER"sidescroller_map.txt");
     
@@ -61,6 +62,8 @@ void Setup() {
     resources.shader = &program;
     resources.displayWindow = displayWindow;
     resources.done = &done;
+    resources.spriteSheets.push_back(spriteSheet);
+    resources.spriteSheets.push_back(font);
     
     state.Initialize(&resources, &map);
 }

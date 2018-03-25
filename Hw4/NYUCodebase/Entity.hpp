@@ -24,8 +24,8 @@ public:
     void Render(ShaderProgram& program, Matrix& modelMatrix) const;
     bool CollidesWithX(float x, float width);
     bool CollidesWithY(float y, float height);
-    bool CollidesWith(const Entity& other);
-    bool CollidesWith(float x, float y, float width, float height);
+    bool CollidesWith(const Entity& other) const;
+    bool CollidesWith(float x, float y, float width, float height) const;
     void SetSprite(SheetSprite* newSprite);
     
     SheetSprite* sprite;

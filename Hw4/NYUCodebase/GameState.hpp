@@ -14,6 +14,7 @@ class GameState {
 public:
     GameState();
     void Initialize(GameResource* resource, FlareMap* map);
+    void Reset();
     void ProcessInput();
     void Update(float elapsed);
     void Render();

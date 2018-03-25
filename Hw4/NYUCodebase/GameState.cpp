@@ -2,7 +2,7 @@
 #include "GameState.hpp"
 
 #define ACCELERATION 0.7f
-#define FRICTION 0.5f
+#define FRICTION 0.6f
 #define GRAVITY -1.5f
 
 #define COLLIDE_X 0
@@ -10,7 +10,9 @@
 
 #define DELTA 0.00001f
 
-std::unordered_set<unsigned int> solidTiles = {0, 1, 2, 3, 16, 17, 18, 19, 32, 33, 34, 35, 100, 101};
+#define KEY 86
+
+std::unordered_set<unsigned int> solidTiles = {0, 1, 2, 3, 6, 16, 17, 18, 19, 32, 33, 34, 35, 100, 101};
 
 GameState::GameState() {}
 
@@ -36,6 +38,20 @@ void GameState::PlaceEntity(std::string type, float x, float y) {
     }
 }
 
+void GameState::Reset() {
+    for (int i = 0; i < map->entities.size(); i++) {
+        if (map->entities[i].type == "Player") {
+            player->position.x = map->entities[i].x * map->tileSize;
+            player->position.y = (map->entities[i].y - 1) * -map->tileSize - map->tileSize / 2;
+            break;
+        }
+    }
+    player->velocity.x = 0.0f;
+    player->velocity.y = 0.0f;
+    player->acceleration.x = 0.0f;
+    player->acceleration.y = 0.0f;
+}
+
 void GameState::ProcessInput() {
     SDL_Event& event = *resource->event;
     while (SDL_PollEvent(&event)) {
@@ -43,6 +59,7 @@ void GameState::ProcessInput() {
             *resource->done = true;
         }
         else if (event.type == SDL_KEYDOWN) {
+            // Can only jump if ground below is solid
             if (player->collidedBottom) {
                 if (event.key.keysym.scancode == SDL_SCANCODE_UP) {
                     player->velocity.y = 3.0f;
@@ -53,7 +70,6 @@ void GameState::ProcessInput() {
         else if (event.type == SDL_KEYUP) {
             if (event.key.keysym.scancode == SDL_SCANCODE_UP) {
                 player->acceleration.x = 0.0f;
-                //player->velocity.y = 0.0f;
             }
             else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT ||
                      event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
@@ -75,7 +91,7 @@ void GameState::ProcessInput() {
             
         }
     }
-    // If jumping, allow velocity to be set
+    // If jumping, allow left/right velocity to be set
     else if (timer.isRunning()) {
         if (keys[SDL_SCANCODE_RIGHT]) {
             player->velocity.x = 1.0f;
@@ -83,6 +99,7 @@ void GameState::ProcessInput() {
         else if (keys[SDL_SCANCODE_LEFT]) {
             player->velocity.x = -1.0f;
         }
+        // End of jump
         if (timer.isOver(0.3f)) {
             player->velocity.y = 0.0f;
             timer.reset();
@@ -199,16 +216,7 @@ void GameState::Update(float elapsed) {
         entity.position.x += entity.velocity.x * elapsed;
         CollideWithMap(entity, COLLIDE_X);
         
-        // Keep player in bounds of map
-        if (entity.entityType == ENTITY_PLAYER) {
-            if (entity.position.x - entity.size.x / 2 < 0) {
-                entity.position.x = entity.size.x / 2 + DELTA;
-            }
-            else if (entity.position.x + entity.size.x / 2 > map->mapWidth * map->tileSize) {
-                entity.position.x = map->mapWidth * map->tileSize - entity.size.x / 2 - DELTA;
-            }
-        }
-        
+        // Make enemy reverse direction when they hit wall
         if (entity.entityType == ENTITY_ENEMY) {
             if (entity.collidedLeft) {
                 entity.acceleration.x = ACCELERATION;
@@ -217,6 +225,32 @@ void GameState::Update(float elapsed) {
                 entity.acceleration.x = -ACCELERATION;
             }
         }
+        
+        if (&entities[i] != player) {
+            if (player->CollidesWithY(entities[i].position.y, entities[i].size.y)) {
+                //entities[i] = entities.back();
+                //entities.pop_back();
+            }/*
+            if (player->CollidesWith(entities[i])) {
+                Reset();
+                break;
+            }*/
+        
+        }
+    }
+    
+    // Keep player in bounds of map
+    if (player->position.x - player->size.x / 2 < 0) {
+        player->position.x = player->size.x / 2 + DELTA;
+    }
+    else if (player->position.x + player->size.x / 2 > map->mapWidth * map->tileSize) {
+        player->position.x = map->mapWidth * map->tileSize - player->size.x / 2 - DELTA;
+    }
+    
+    int x, y;
+    map->worldToTileCoordinates(player->position.x, player->position.y, x, y);
+    if (y >= 0 && map->mapData[y][x] - 1 == KEY) {
+        glClearColor(0.2f, 0.2f, 0.5f, 1.0);
     }
 }
 
@@ -227,6 +261,7 @@ void GameState::Render() {
     modelMatrix.Identity();
     shader.SetModelMatrix(modelMatrix);
 
+    // Calculate bounds of scrolling
     float viewX = player->position.x;
     float viewY = -(map->mapHeight * map->tileSize - resource->projection->y);
     
