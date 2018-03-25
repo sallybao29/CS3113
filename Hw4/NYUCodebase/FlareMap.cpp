@@ -173,5 +173,5 @@ void FlareMap::Render(ShaderProgram& shader) {
 
 void FlareMap::worldToTileCoordinates(float worldX, float worldY, int& gridX, int& gridY) const {
     gridX = (int) (worldX / tileSize);
-    gridY = (int) (worldY / tileSize);
+    gridY = (int) (-worldY / tileSize);
 }

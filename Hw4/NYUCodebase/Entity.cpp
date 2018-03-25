@@ -43,21 +43,20 @@ bool Entity::CollidesWith(const Entity& other) {
 }
 
 bool Entity::CollidesWith(float x, float y, float width, float height) {
-    float distanceY = position.y - y;
-    float distanceX = position.x - x;
-    if (fabs(distanceY) < size.y / 2 + height / 2) {
-        if (distanceY < 0)
-            collidedTop = true;
-        else
-            collidedBottom = true;
-    }
-    if (fabs(distanceX) < size.x / 2 + width / 2) {
-        if (distanceX < 0)
-            collidedRight = true;
-        else
-            collidedLeft = true;
-    }
+    return CollidesWithX(x, width) || CollidesWithY(y, height);
+}
+
+bool Entity::CollidesWithX(float x, float width) {
+    collidedLeft = position.x - size.x / 2 < x + width / 2 && position.x - size.x / 2 > x - width / 2;
+    collidedRight = position.x + size.x / 2 < x + width / 2 && position.x + size.x / 2 > x - width / 2;
     
-    return collidedTop || collidedBottom || collidedRight || collidedLeft;
+    return collidedLeft || collidedRight;
+}
+
+bool Entity::CollidesWithY(float y, float height) {
+    collidedTop = position.y + size.y / 2 < y + height / 2 && position.y + size.y / 2 > y - height / 2;
+    collidedBottom = position.y + size.y / 2 > y + height / 2 && position.y - size.y / 2 < y + height / 2;
+    
+    return collidedTop || collidedBottom;
 }
 

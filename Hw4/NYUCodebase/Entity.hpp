@@ -22,6 +22,8 @@ public:
     
     void Update(float elapsed);
     void Render(ShaderProgram& program, Matrix& modelMatrix) const;
+    bool CollidesWithX(float x, float width);
+    bool CollidesWithY(float y, float height);
     bool CollidesWith(const Entity& other);
     bool CollidesWith(float x, float y, float width, float height);
     void SetSprite(SheetSprite* newSprite);
