@@ -3,7 +3,7 @@
 
 #define ACCELERATION 0.7f
 #define FRICTION 0.6f
-#define GRAVITY -1.5f
+#define GRAVITY 1.5f
 
 #define COLLIDE_X 0
 #define COLLIDE_Y 1
@@ -176,7 +176,7 @@ void GameState::Update(float elapsed) {
         entity.velocity.y += entity.acceleration.y * elapsed;
         
         // Apply gravity
-        entity.velocity.y += GRAVITY * elapsed;
+        entity.velocity.y -= GRAVITY * elapsed;
         
         // Apply y-axis velocity
         entity.position.y += entity.velocity.y * elapsed;
@@ -215,7 +215,7 @@ void GameState::Update(float elapsed) {
     // Collision between dynamic entities
     for (size_t i = 0; i < entities.size(); i++) {
         if (&entities[i] == player) continue;
-        if (player->CollidesWith(entities[i]) &&
+        if (player->CollidesWith(entities[i]) && player->velocity.y < 0 &&
             player->CollidesWithY(entities[i].position.y, entities[i].size.y)) {
             // Bounce off enemies
             if (player->collidedBottom) {
@@ -226,8 +226,8 @@ void GameState::Update(float elapsed) {
             }
         }
          else if (player->CollidesWith(entities[i])) {
-         Reset();
-         break;
+             Reset();
+             break;
         }
     }
 }
@@ -235,11 +235,6 @@ void GameState::Update(float elapsed) {
 void GameState::Render() {
     glClear(GL_COLOR_BUFFER_BIT);
     ShaderProgram& shader = *resource->shader;
-    
-    modelMatrix.Identity();
-    modelMatrix.Translate(player->position.x - 0.1f, player->position.y + player->size.y, 0.0f);
-    shader.SetModelMatrix(modelMatrix);
-    DrawText(shader, modelMatrix, resource->spriteSheets[1], "You", 0.1f, 0.0f);
 
     modelMatrix.Identity();
     shader.SetModelMatrix(modelMatrix);
@@ -260,11 +255,19 @@ void GameState::Render() {
     viewMatrix.Translate(-viewX, -viewY, 0.0f);
     shader.SetViewMatrix(viewMatrix);
 
+    // Draw map
     map->Render(shader);
     
+    // Draw entities
     for (size_t i = 0; i < entities.size(); i++) {
         entities[i].Render(shader);
     }
+    
+    // Label player
+    modelMatrix.Identity();
+    modelMatrix.Translate(player->position.x - 0.1f, player->position.y + player->size.y, 0.0f);
+    shader.SetModelMatrix(modelMatrix);
+    DrawText(shader, modelMatrix, resource->spriteSheets[1], "You", 0.1f, 0.0f);
     
     SDL_GL_SwapWindow(resource->displayWindow);
 }
