@@ -21,7 +21,7 @@ public:
     Entity(float x, float y, SheetSprite *sprite, EntityType type);
     
     void Update(float elapsed);
-    void Render(ShaderProgram& program, Matrix& modelMatrix) const;
+    void Render(ShaderProgram& program);
     bool CollidesWithX(float x, float width);
     bool CollidesWithY(float y, float height);
     bool CollidesWith(const Entity& other) const;
@@ -34,6 +34,8 @@ public:
     Vector3 size;
     Vector3 velocity;
     Vector3 acceleration;
+    
+    Matrix modelMatrix;
     
     float rotation = 0.0f;
     

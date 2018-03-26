@@ -88,7 +88,7 @@ bool FlareMap::ReadLayerData(std::ifstream& stream) {
                 std::string tile;
                 for (int x = 0; x < mapWidth; x++) {
                     getline(lineStream, tile, ',');
-                    unsigned char val =  (unsigned char)atoi(tile.c_str());
+                    unsigned int val =  (unsigned int)atoi(tile.c_str());
                     // Tiles in this format are indexed from 1 not 0
                     mapData[y][x] = val;
                 }

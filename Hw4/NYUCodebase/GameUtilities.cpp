@@ -26,13 +26,7 @@ GLuint LoadTexture(const char *filePath, GLuint filter) {
 }
 
 void DrawText(ShaderProgram& program, Matrix& modelMatrix,
-              int fontTexture, std::string text, float size, float spacing, float x, float y) {
-    // Center the text at (x, y)
-    float centerX = x - (text.size() * size + (text.size() - 1) * spacing) / 2;
-    float centerY = y + size / 2;
-    modelMatrix.Identity();
-    modelMatrix.Translate(centerX, centerY, 0.0f);
-    program.SetModelMatrix(modelMatrix);
+              int fontTexture, std::string text, float size, float spacing) {
     
     float texture_size = 1.0/16.0f;
     std::vector<float> vertexData;

@@ -25,7 +25,7 @@ public:
 GLuint LoadTexture(const char *filePath, GLuint filter);
 
 void DrawText(ShaderProgram& program, Matrix& modelMatrix,
-              int fontTexture, std::string text, float size, float spacing, float x, float y);
+int fontTexture, std::string text, float size, float spacing);
 
 float lerp(float v0, float v1, float t);
 

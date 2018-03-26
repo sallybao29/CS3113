@@ -2,6 +2,8 @@
 #include "ShaderProgram.h"
 #include "Entity.hpp"
 
+#define DELTA 0.00001f
+
 Entity::Entity(float x, float y, float width, float height, EntityType type)
 : position(x, y, 0.0f), size(width, height, 0.0f), entityType(type) {}
 
@@ -20,7 +22,7 @@ void Entity::SetSprite(SheetSprite* newSprite) {
     size.y = newSprite->size;
 }
 
-void Entity::Render(ShaderProgram& program, Matrix& modelMatrix) const {
+void Entity::Render(ShaderProgram& program) {
     if (sprite == nullptr) return;
     
     modelMatrix.Identity();
@@ -51,10 +53,21 @@ bool Entity::CollidesWith(float x, float y, float width, float height) const {
              position.x - size.x / 2 > x + width / 2);
 }
 
-
 bool Entity::CollidesWithX(float x, float width) {
     collidedLeft = position.x - size.x / 2 < x + width / 2 && position.x - size.x / 2 > x - width / 2;
     collidedRight = position.x + size.x / 2 < x + width / 2 && position.x + size.x / 2 > x - width / 2;
+    
+    // Adjust by the amount of penetration if there is collision
+    if (collidedRight) {
+        float penetration = fabs((position.x + size.x / 2) - (x - width / 2));
+        position.x -= penetration - DELTA;
+        velocity.x = 0;
+    }
+    else if (collidedLeft) {
+        float penetration = fabs((x + width / 2) - (position.x - size.x / 2));
+        position.x += penetration + DELTA;
+        velocity.x = 0;
+    }
     
     return collidedLeft || collidedRight;
 }
@@ -63,6 +76,18 @@ bool Entity::CollidesWithY(float y, float height) {
     collidedTop = position.y + size.y / 2 < y + height / 2 && position.y + size.y / 2 > y - height / 2;
     collidedBottom = position.y + size.y / 2 > y + height / 2 && position.y - size.y / 2 < y + height / 2;
     
+    // Adjust by the amount of penetration if there is collision
+    if (collidedTop) {
+        float penetration = fabs((position.y + size.y / 2) - (y - height / 2));
+        position.y -= penetration - DELTA;
+        velocity.y = 0;
+    }
+    else if (collidedBottom) {
+        float penetration = fabs((y + height / 2) - (position.y - size.y / 2));
+        position.y += penetration + DELTA;
+        velocity.y = 0;
+    }
+
     return collidedTop || collidedBottom;
 }
 

@@ -87,9 +87,6 @@ void GameState::ProcessInput() {
         else if (keys[SDL_SCANCODE_LEFT]) {
             player->acceleration.x = -ACCELERATION;
         }
-        if (keys[SDL_SCANCODE_UP]) {
-            
-        }
     }
     // If jumping, allow left/right velocity to be set
     else if (timer.isRunning()) {
@@ -113,25 +110,14 @@ bool GameState::ResolveCollisionY(Entity& entity, int x, int y, float size) {
         map->mapData[y][x] == 0 ||
         solidTiles.find(map->mapData[y][x] - 1) == solidTiles.end()) return false;
     
+    if (map->mapData[y][x] - 1 == 100 || map->mapData[y][x] - 1 == 101) {
+        Reset();
+        return false;
+    }
+    
     // Move tile coordinates to center of tile
     float centerY = -y * size - size / 2;
-    
-    if (entity.CollidesWithY(centerY, size)) {
-        
-        // Adjust by the amount of penetration
-        if (entity.collidedTop) {
-            float penetration = fabs((entity.position.y + entity.size.y / 2) - (y * -size - size));
-            entity.position.y -= penetration - DELTA;
-        }
-        else if (entity.collidedBottom) {
-            float penetration = fabs(y * -size - (entity.position.y - entity.size.y / 2));
-            entity.position.y += penetration + DELTA;
-        }
-        // Set velocity to 0
-        entity.velocity.y = 0;
-        return true;
-    }
-    return false;
+    return entity.CollidesWithY(centerY, size);
 }
 
 bool GameState::ResolveCollisionX(Entity& entity, int x, int y, float size) {
@@ -142,23 +128,7 @@ bool GameState::ResolveCollisionX(Entity& entity, int x, int y, float size) {
     
     // Move tile coordinates to center of tile
     float centerX = x * size + size / 2;
-   
-    if (entity.CollidesWithX(centerX, size)) {
-        // Adjust by the amount of penetration
-        if (entity.collidedRight) {
-            float penetration = fabs(entity.position.x + entity.size.x / 2 - x * size);
-            entity.position.x -= penetration - DELTA;
-        }
-        else if (entity.collidedLeft) {
-            float penetration = fabs((x * size + size) - (entity.position.x - entity.size.x / 2));
-            entity.position.x += penetration + DELTA;
-        }
-        
-        // Set velocity to 0
-        entity.velocity.x = 0;
-        return true;
-    }
-    return false;
+    return entity.CollidesWithX(centerX, size);
 }
 
 void GameState::CollideWithMap(Entity& entity, int direction) {
@@ -225,18 +195,6 @@ void GameState::Update(float elapsed) {
                 entity.acceleration.x = -ACCELERATION;
             }
         }
-        
-        if (&entities[i] != player) {
-            if (player->CollidesWithY(entities[i].position.y, entities[i].size.y)) {
-                //entities[i] = entities.back();
-                //entities.pop_back();
-            }/*
-            if (player->CollidesWith(entities[i])) {
-                Reset();
-                break;
-            }*/
-        
-        }
     }
     
     // Keep player in bounds of map
@@ -251,12 +209,37 @@ void GameState::Update(float elapsed) {
     map->worldToTileCoordinates(player->position.x, player->position.y, x, y);
     if (y >= 0 && map->mapData[y][x] - 1 == KEY) {
         glClearColor(0.2f, 0.2f, 0.5f, 1.0);
+        map->mapData[y][x] = 0;
+    }
+    
+    // Collision between dynamic entities
+    for (size_t i = 0; i < entities.size(); i++) {
+        if (&entities[i] == player) continue;
+        if (player->CollidesWith(entities[i]) &&
+            player->CollidesWithY(entities[i].position.y, entities[i].size.y)) {
+            // Bounce off enemies
+            if (player->collidedBottom) {
+                // Player bounces up a little
+                player->velocity.y = 1.0f;
+                timer.start();
+                break;
+            }
+        }
+         else if (player->CollidesWith(entities[i])) {
+         Reset();
+         break;
+        }
     }
 }
 
 void GameState::Render() {
     glClear(GL_COLOR_BUFFER_BIT);
     ShaderProgram& shader = *resource->shader;
+    
+    modelMatrix.Identity();
+    modelMatrix.Translate(player->position.x - 0.1f, player->position.y + player->size.y, 0.0f);
+    shader.SetModelMatrix(modelMatrix);
+    DrawText(shader, modelMatrix, resource->spriteSheets[1], "You", 0.1f, 0.0f);
 
     modelMatrix.Identity();
     shader.SetModelMatrix(modelMatrix);
@@ -280,7 +263,7 @@ void GameState::Render() {
     map->Render(shader);
     
     for (size_t i = 0; i < entities.size(); i++) {
-        entities[i].Render(shader, modelMatrix);
+        entities[i].Render(shader);
     }
     
     SDL_GL_SwapWindow(resource->displayWindow);
