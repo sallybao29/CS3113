@@ -110,6 +110,7 @@ bool GameState::ResolveCollisionY(Entity& entity, int x, int y, float size) {
         map->mapData[y][x] == 0 ||
         solidTiles.find(map->mapData[y][x] - 1) == solidTiles.end()) return false;
     
+    // Reset if player falls on spikes
     if (map->mapData[y][x] - 1 == 100 || map->mapData[y][x] - 1 == 101) {
         Reset();
         return false;
@@ -166,6 +167,7 @@ void GameState::Update(float elapsed) {
     for (int i = 0; i < entities.size(); i++) {
         Entity& entity = entities[i];
         
+        // Reset all contact flags
         entity.Update(elapsed);
     
         // Apply friction
@@ -217,14 +219,14 @@ void GameState::Update(float elapsed) {
         if (&entities[i] == player) continue;
         if (player->CollidesWith(entities[i]) && player->velocity.y < 0 &&
             player->CollidesWithY(entities[i].position.y, entities[i].size.y)) {
-            // Bounce off enemies
+            // Bounce off enemies when you jump on them
             if (player->collidedBottom) {
-                // Player bounces up a little
-                player->velocity.y = 1.0f;
+                player->velocity.y = 1.2f;
                 timer.start();
                 break;
             }
         }
+        // Otherwise, die if an enemy touches you
          else if (player->CollidesWith(entities[i])) {
              Reset();
              break;
@@ -258,6 +260,18 @@ void GameState::Render() {
     // Draw map
     map->Render(shader);
     
+    // Draw message
+    std::string message1 = "USE ARROW KEYS TO MOVE AND JUMP.";
+    std::string message2 = "CAN YOU REACH THE END? ;)";
+    modelMatrix.Identity();
+    modelMatrix.Translate(map->tileSize, 2 * -map->tileSize, 0.0f);
+    shader.SetModelMatrix(modelMatrix);
+    DrawText(shader, resource->spriteSheets[1], message1, 0.15f, 0.0f);
+    
+    modelMatrix.Translate(0.0f, -map->tileSize, 0.0f);
+    shader.SetModelMatrix(modelMatrix);
+    DrawText(shader, resource->spriteSheets[1], message2, 0.15f, 0.0f);
+    
     // Draw entities
     for (size_t i = 0; i < entities.size(); i++) {
         entities[i].Render(shader);
@@ -267,7 +281,7 @@ void GameState::Render() {
     modelMatrix.Identity();
     modelMatrix.Translate(player->position.x - 0.1f, player->position.y + player->size.y, 0.0f);
     shader.SetModelMatrix(modelMatrix);
-    DrawText(shader, modelMatrix, resource->spriteSheets[1], "You", 0.1f, 0.0f);
+    DrawText(shader, resource->spriteSheets[1], "YOU", 0.1f, 0.0f);
     
     SDL_GL_SwapWindow(resource->displayWindow);
 }

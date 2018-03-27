@@ -25,8 +25,7 @@ GLuint LoadTexture(const char *filePath, GLuint filter) {
     return retTexture;
 }
 
-void DrawText(ShaderProgram& program, Matrix& modelMatrix,
-              int fontTexture, std::string text, float size, float spacing) {
+void DrawText(ShaderProgram& program, int fontTexture, std::string text, float size, float spacing) {
     
     float texture_size = 1.0/16.0f;
     std::vector<float> vertexData;
