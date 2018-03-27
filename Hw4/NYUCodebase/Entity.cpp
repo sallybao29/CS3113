@@ -31,7 +31,12 @@ void Entity::Render(ShaderProgram& program) {
     
     program.SetModelMatrix(modelMatrix);
     
-    sprite->reversed = acceleration.x < 0;
+    // Invert sprite direction depending on movement
+    if ((sprite->reversed && velocity.x > 0) ||
+        (!sprite->reversed && velocity.x < 0)) {
+        sprite->reversed = !sprite->reversed;
+    }
+    
     sprite->Render(program);
 }
 
