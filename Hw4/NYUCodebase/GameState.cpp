@@ -172,6 +172,7 @@ void GameState::Update(float elapsed) {
     
         // Apply friction
         entity.velocity.x = lerp(entity.velocity.x, 0.0f, elapsed * FRICTION);
+        entity.velocity.y = lerp(entity.velocity.y, 0.0f, elapsed * FRICTION);
         
         // Apply acceleration
         entity.velocity.x += entity.acceleration.x * elapsed;
