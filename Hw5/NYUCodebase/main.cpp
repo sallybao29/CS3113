@@ -43,30 +43,9 @@ void ProcessInput() {
             done = true;
         }
     }
-    
-    if (keys[SDL_SCANCODE_LEFT]) {
-        player.velocity.x = -1.0f;
-    }
-    else if (keys[SDL_SCANCODE_RIGHT]) {
-        player.velocity.x = 1.0f;
-    }
-    else {
-        player.velocity.x = 0.0f;
-    }
-    if (keys[SDL_SCANCODE_DOWN]) {
-        player.velocity.y = -1.0f;
-    }
-    else if (keys[SDL_SCANCODE_UP]) {
-        player.velocity.y = 1.0f;
-    }
-    else {
-        player.velocity.y = 0.0f;
-    }
 }
 
 void Update(float elapsed) {
-    //player.Update(elapsed);
-    
     std::pair<float, float> penetration;
     
     // Keep entities in bounds
@@ -82,6 +61,7 @@ void Update(float elapsed) {
                 entities[i].position.x += penetration.first;
                 entities[i].position.y += penetration.second;
                 
+                // Bounce off walls/ceilings
                 switch (j) {
                     case BOTTOM:
                     case TOP:
@@ -108,9 +88,6 @@ void Update(float elapsed) {
 
 void Render() {
     glClear(GL_COLOR_BUFFER_BIT);
-    
-    //untexturedProgram.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
-    //player.Render(untexturedProgram);
     
     for (size_t i = 0; i < entities.size(); i++) {
         entities[i].Render(untexturedProgram);
@@ -146,7 +123,6 @@ void Setup() {
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glClearColor(10.0f / 255.0f, 120.0f / 255.0f, 172.0f / 255.0f, 1.0f);
     
     float xBound = projection.x * 0.75f;
     float yBound = projection.y * 0.80f;
@@ -156,16 +132,22 @@ void Setup() {
         float x = (rand() / (float) RAND_MAX * xBound * 2) - xBound;
         float y = (rand() / (float) RAND_MAX * yBound * 2) - yBound;
         float angle = rand() / (float) RAND_MAX * 2 * M_PI;
-        float width = (rand() / (float) RAND_MAX * 0.5f) + 0.1f;
-        float height = (rand() / (float) RAND_MAX * 0.5f) + 0.1f;
-        float velocityX = (rand() / (float) RAND_MAX * 2.0f) - 1.0f;
-        float velocityY = (rand() / (float) RAND_MAX * 2.0f) - 1.0f;
+        float width = (rand() / (float) RAND_MAX * 0.3f) + 0.1f;
+        float height = (rand() / (float) RAND_MAX * 0.3f) + 0.1f;
+        float velocityX = (rand() / (float) RAND_MAX * 4.0f) - 2.0f;
+        float velocityY = (rand() / (float) RAND_MAX * 4.0f) - 2.0f;
+        float red = rand() / (float) RAND_MAX;
+        float green = rand() / (float) RAND_MAX;
+        float blue = rand() / (float) RAND_MAX;
         
         entities.emplace_back(x, y, width, height, ENTITY_ENEMY);
         Entity& entity = entities.back();
         entity.rotation = angle;
         entity.velocity.x = velocityX;
         entity.velocity.y = velocityY;
+        entity.SetColor(red, green, blue, 1.0f);
+        entity.scale.x = 1.2f;
+        entity.scale.y = 1.2f;
     }
     
     // Bottom border

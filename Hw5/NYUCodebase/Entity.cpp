@@ -39,6 +39,7 @@ void Entity::Render(ShaderProgram& program) {
     program.SetModelMatrix(modelMatrix);
 
     if (sprite == nullptr) {
+        program.SetColor(color[RED], color[GREEN], color[BLUE], color[ALPHA]);
         DrawShape(program, shape);
     }
     
@@ -62,11 +63,9 @@ bool Entity::CollidesWith(Entity& other) {
     if (collided) {
         position.x += penetration.first * 0.5f;
         position.y += penetration.second * 0.5f;
-        //rotation += 1 / (2 * M_PI);
         
         other.position.x -= penetration.first * 0.5f;
         other.position.y -= penetration.second * 0.5f;
-        //rotation -= 1 / (2 * M_PI);
         
         if (fabs(penetration.first) > fabs(penetration.second)) {
             velocity.x *= -1;
@@ -79,5 +78,12 @@ bool Entity::CollidesWith(Entity& other) {
     }
     
     return collided;
+}
+
+void Entity::SetColor(float r, float g, float b, float a) {
+    color[RED] = r;
+    color[GREEN] = g;
+    color[BLUE] = b;
+    color[ALPHA] = a;
 }
 

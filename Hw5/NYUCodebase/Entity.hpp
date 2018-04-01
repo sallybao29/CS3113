@@ -6,6 +6,11 @@
 #include "Shape.hpp"
 #include "SheetSprite.hpp"
 
+#define RED 0
+#define GREEN 1
+#define BLUE 2
+#define ALPHA 3
+
 class ShaderProgram;
 class Matrix;
 
@@ -25,6 +30,7 @@ public:
     void Render(ShaderProgram& program);
     bool CollidesWith(Entity& other);
     void SetSprite(SheetSprite* newSprite);
+    void SetColor(float r, float g, float b, float a);
     const Matrix& matrix();
  
     SheetSprite* sprite = nullptr;
@@ -40,6 +46,8 @@ public:
     float rotation = 0.0f;
     
     EntityType entityType;
+    
+    float color[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     
     bool collidedTop;
     bool collidedBottom;
