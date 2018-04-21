@@ -16,9 +16,18 @@ std::unordered_set<unsigned int> solidTiles = {0, 1, 2, 3, 6, 16, 17, 18, 19, 32
 
 GameState::GameState() {}
 
+GameState::~GameState() {
+    Mix_FreeMusic(music);
+    for (std::pair<const std::string, Mix_Chunk*> sound : sounds) {
+        Mix_FreeChunk(sound.second);
+    }
+}
+
 void GameState::Initialize(GameResource* resource, FlareMap* map) {
     this->resource = resource;
     this->map = map;
+    
+    collidedBottomPrev = true;
     
     sprites.emplace_back(map->spriteSheetTexture, 80, map->spriteCountX, map->spriteCountY, 1.0f, 0.3);
     
@@ -28,7 +37,14 @@ void GameState::Initialize(GameResource* resource, FlareMap* map) {
     
     // Load music and sound effects
     music = Mix_LoadMUS(RESOURCE_FOLDER"bgm.mp3");
+    Mix_VolumeMusic(50);
     Mix_PlayMusic(music, -1);
+    
+    sounds["jump"] = Mix_LoadWAV(RESOURCE_FOLDER"sfx_movement_jump4.wav");
+    sounds["land"] = Mix_LoadWAV(RESOURCE_FOLDER"sfx_movement_jump15_landing.wav");
+    sounds["impact"] = Mix_LoadWAV(RESOURCE_FOLDER"sfx_sounds_impact11.wav");
+    
+    Mix_VolumeChunk(sounds["jump"], 30);
 }
 
 void GameState::PlaceEntity(std::string type, float x, float y) {
@@ -68,6 +84,7 @@ void GameState::ProcessInput() {
                 if (event.key.keysym.scancode == SDL_SCANCODE_UP) {
                     player->velocity.y = 3.0f;
                     timer.start();
+                    Mix_PlayChannel(-1, sounds["jump"], 0);
                 }
             }
         }
@@ -212,6 +229,12 @@ void GameState::Update(float elapsed) {
         player->position.x = map->mapWidth * map->tileSize - player->size.x / 2 - DELTA;
     }
     
+    // Check if player is landing
+    if (!collidedBottomPrev && player->collidedBottom) {
+        Mix_PlayChannel(-1, sounds["land"], 0);
+    }
+    collidedBottomPrev = player->collidedBottom;
+    
     int x, y;
     map->worldToTileCoordinates(player->position.x, player->position.y, x, y);
     if (y >= 0 && map->mapData[y][x] - 1 == KEY) {
@@ -228,11 +251,13 @@ void GameState::Update(float elapsed) {
             if (player->collidedBottom) {
                 player->velocity.y = 1.2f;
                 timer.start();
+                Mix_PlayChannel(-1, sounds["jump"], 0);
                 break;
             }
         }
         // Otherwise, die if an enemy touches you
          else if (player->CollidesWith(entities[i])) {
+             Mix_PlayChannel(-1, sounds["impact"], 0);
              Reset();
              break;
         }
